@@ -84,10 +84,12 @@ class ProductController extends Controller
             'images.*.delete' => 'nullable|boolean',
         ]);
 
-        DB::transaction(function () use ($data, $product, $request) {
+        $keptBecauseSold = [];
+
+        DB::transaction(function () use ($data, $product, $request, &$keptBecauseSold) {
             $product->fill([
                 'category_id' => $data['category_id'],
-                'code' => $data['code'] ?: null,
+                'code' => ($data['code'] ?? null) ?: null,
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'base_price' => $data['base_price'],
@@ -98,7 +100,15 @@ class ProductController extends Controller
             foreach ($data['variants'] ?? [] as $i => $row) {
                 $hasId = ! empty($row['id']);
                 if (! empty($row['delete']) && $hasId) {
-                    ProductVariant::where('id', $row['id'])->delete();
+                    if (OrderItem::where('variant_id', $row['id'])->exists()) {
+                        $variant = ProductVariant::find($row['id']);
+                        if ($variant) {
+                            $variant->update(['stock' => 0]);
+                            $keptBecauseSold[] = "{$variant->color} / {$variant->size}";
+                        }
+                    } else {
+                        ProductVariant::where('id', $row['id'])->delete();
+                    }
 
                     continue;
                 }
@@ -151,7 +161,16 @@ class ProductController extends Controller
             }
         });
 
-        return redirect()->route('admin.products.index')->with('success', 'Prenda guardada correctamente.');
+        $redirect = redirect()->route('admin.products.index')->with('success', 'Prenda guardada correctamente.');
+
+        if ($keptBecauseSold) {
+            $redirect->with('error',
+                'No se pudo eliminar: '.implode(', ', $keptBecauseSold).'. Ya tiene pedidos registrados y se borraría '.
+                'el historial de ventas. Quedó con 0 existencias, así que aparece como agotada.'
+            );
+        }
+
+        return $redirect;
     }
 
     public function confirmDelete(Product $product)
