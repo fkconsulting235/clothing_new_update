@@ -44,7 +44,7 @@
                             {{ $i === 0 ? 'top-0 right-24 w-56 h-72 rotate-[-4deg] z-10' : '' }}
                             {{ $i === 1 ? 'top-12 right-0 w-48 h-64 rotate-[5deg]' : '' }}
                             {{ $i === 2 ? 'bottom-0 right-40 w-44 h-56 rotate-[-2deg] z-20' : '' }}">
-                            <img src="{{ $img->url }}" alt="" class="w-full h-full object-cover">
+                            <img src="{{ $img->thumb_url }}" alt="" class="w-full h-full object-cover">
                         </div>
                     @endforeach
                 @else

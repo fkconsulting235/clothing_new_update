@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Reservation;
+use App\Support\ImageOptimizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +136,7 @@ class ProductController extends Controller
                     $image = ProductImage::find($row['id']);
                     if ($image) {
                         Storage::disk('public')->delete($image->image_path);
+                        ImageOptimizer::forget($image->image_path);
                         $image->delete();
                     }
 
@@ -144,9 +146,15 @@ class ProductController extends Controller
                 $file = $request->file("images.{$i}.file");
                 if ($file) {
                     $path = $file->store('products/'.now()->format('Y/m'), 'public');
+                    try {
+                        ImageOptimizer::generate($path);
+                    } catch (\Throwable $e) {
+                        report($e);
+                    }
                     if ($hasId) {
                         $image = ProductImage::find($row['id']);
                         Storage::disk('public')->delete($image->image_path);
+                        ImageOptimizer::forget($image->image_path);
                         $image->update(['image_path' => $path, 'order' => $row['order'] ?? 0]);
                     } else {
                         ProductImage::create([
@@ -196,6 +204,7 @@ class ProductController extends Controller
 
         foreach ($product->images as $image) {
             Storage::disk('public')->delete($image->image_path);
+                        ImageOptimizer::forget($image->image_path);
         }
 
         $product->delete();

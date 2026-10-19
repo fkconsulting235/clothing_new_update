@@ -22,7 +22,7 @@
         <div>
             <div class="aspect-[4/5] bg-gradient-to-br from-stone-100 to-stone-200 rounded-3xl overflow-hidden border border-stone-200/80">
                 @if($product->images->isNotEmpty())
-                    <img id="main-product-image" src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-opacity duration-200">
+                    <img id="main-product-image" src="{{ $product->images->first()->medium_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-opacity duration-200">
                 @else
                     <div class="w-full h-full flex flex-col items-center justify-center text-stone-400">
                         <span class="text-6xl mb-2">👗</span>
@@ -33,9 +33,9 @@
             @if($product->images->count() > 1)
                 <div class="grid grid-cols-5 gap-2 mt-3">
                     @foreach($product->images as $image)
-                        <button type="button" onclick="swapMainImage('{{ $image->url }}', this)"
+                        <button type="button" onclick="swapMainImage('{{ $image->medium_url }}', this)"
                                 class="thumb-btn aspect-square bg-stone-100 rounded-xl overflow-hidden border-2 {{ $loop->first ? 'border-gold-500' : 'border-transparent' }} hover:border-gold-400 transition-colors">
-                            <img src="{{ $image->url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                            <img src="{{ $image->thumb_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                         </button>
                     @endforeach
                 </div>

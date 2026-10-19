@@ -103,7 +103,7 @@
                 @foreach($product->images ?? [] as $i => $image)
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3 border-b border-stone-100 pb-4">
                         <input type="hidden" name="images[{{ $i }}][id]" value="{{ $image->id }}">
-                        <img src="{{ $image->url }}" alt="" class="w-16 h-16 rounded-lg object-cover border border-stone-200 shrink-0">
+                        <img src="{{ $image->thumb_url }}" alt="" class="w-16 h-16 rounded-lg object-cover border border-stone-200 shrink-0">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs text-stone-400 mb-1">Reemplazar por otra foto (opcional)</p>
                             <input type="file" name="images[{{ $i }}][file]" accept="image/*" class="text-sm text-stone-700">

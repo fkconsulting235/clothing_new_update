@@ -7,7 +7,7 @@
 <a href="{{ route('catalog.product', $product) }}" class="group block bg-white rounded-2xl overflow-hidden border border-stone-200/80 hover:border-gold-400 hover:shadow-xl hover:shadow-navy-900/10 hover:-translate-y-1 transition-all duration-300">
     <div class="relative aspect-[4/5] bg-gradient-to-br from-stone-100 to-stone-200 overflow-hidden">
         @if($mainImage)
-            <img src="{{ $mainImage->url }}" alt="{{ $product->name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <img src="{{ $mainImage->thumb_url }}" alt="{{ $product->name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
         @else
             <div class="w-full h-full flex flex-col items-center justify-center text-stone-400">
                 <span class="text-4xl mb-1">👗</span>

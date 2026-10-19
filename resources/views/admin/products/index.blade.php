@@ -42,7 +42,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200 shrink-0 flex items-center justify-center text-lg">
                                     @if($product->images->first())
-                                        <img src="{{ $product->images->first()->url }}" alt="" class="w-full h-full object-cover">
+                                        <img src="{{ $product->images->first()->thumb_url }}" alt="" class="w-full h-full object-cover">
                                     @else
                                         👗
                                     @endif
