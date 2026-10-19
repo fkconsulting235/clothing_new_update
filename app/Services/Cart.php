@@ -67,7 +67,7 @@ class Cart
             $lines[] = [
                 'variant' => $variant,
                 'quantity' => $quantity,
-                'subtotal' => bcmul((string) $variant->price, (string) $quantity, 2),
+                'subtotal' => number_format(round((float) $variant->price * $quantity, 2), 2, '.', ''),
             ];
         }
 
@@ -78,7 +78,7 @@ class Cart
     {
         $total = '0.00';
         foreach ($this->lines() as $line) {
-            $total = bcadd($total, $line['subtotal'], 2);
+            $total = number_format(round((float) $total + (float) $line['subtotal'], 2), 2, '.', '');
         }
 
         return $total;

@@ -144,7 +144,9 @@ class ImportDjango extends Command
 
     protected function date($value): ?string
     {
-        return $value ? Carbon::parse($value, 'UTC')->format('Y-m-d H:i:s') : null;
+        return $value
+            ? Carbon::parse($value, 'UTC')->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s')
+            : null;
     }
 
     protected function wipe(): void

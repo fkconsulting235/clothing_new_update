@@ -46,7 +46,7 @@ class OrderController extends Controller
                     'customer_name' => $data['customer_name'],
                     'customer_phone' => $data['customer_phone'],
                     'customer_email' => $data['customer_email'] ?? null,
-                    'total' => bcmul((string) $locked->price, (string) $quantity, 2),
+                    'total' => number_format(round((float) $locked->price * $quantity, 2), 2, '.', ''),
                     'reservation_id' => $reservation?->id,
                 ]);
 
