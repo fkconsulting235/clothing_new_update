@@ -14,12 +14,11 @@
         </div>
     </div>
 
-    @php($sizes = $products->flatMap(fn ($p) => $p->variants->pluck('size'))->unique()->sort()->values())
     @if($sizes->isNotEmpty())
         <div class="flex flex-wrap items-center gap-2 mb-6">
             <span class="text-xs font-semibold text-stone-500 mr-1">Filtrar por talla:</span>
             @foreach($sizes as $size)
-                <a href="{{ route('catalog.by-size', ['talla' => $size]) }}" class="px-3 py-1.5 rounded-full border border-stone-300 text-xs font-semibold text-navy-900 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-colors">{{ $size }}</a>
+                <a href="{{ route('catalog.by-size', ['talla' => $size['label']]) }}" class="px-3 py-1.5 rounded-full border border-stone-300 text-xs font-semibold text-navy-900 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-colors">{{ $size['label'] }}</a>
             @endforeach
         </div>
     @endif

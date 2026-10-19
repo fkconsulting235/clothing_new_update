@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
+use App\Support\SizeCatalog;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
+    /** Cuántas tallas se muestran en la portada (las más usadas). */
+    protected const HOME_SIZES = 12;
+
     public function home()
     {
         $categories = Category::where('is_active', true)
@@ -17,26 +20,32 @@ class CatalogController extends Controller
             ->get();
 
         $latest = Product::where('is_active', true)
+            ->availableFirst()
             ->with('images', 'variants')
-            ->latest()
             ->take(8)
             ->get();
 
-        $sizes = ProductVariant::whereHas('product', fn ($q) => $q->where('is_active', true))
-            ->distinct()
-            ->orderBy('size')
-            ->pluck('size');
+        $allSizes = SizeCatalog::groups();
+        $popular = $allSizes->sortByDesc('n')->take(self::HOME_SIZES)->pluck('key')->all();
+        $sizes = $allSizes->filter(fn ($g) => in_array($g['key'], $popular, true))->values();
+        $hasMoreSizes = $allSizes->count() > $sizes->count();
 
-        return view('catalog.home', compact('categories', 'latest', 'sizes'));
+        return view('catalog.home', compact('categories', 'latest', 'sizes', 'hasMoreSizes'));
     }
 
     public function category(Category $category)
     {
         abort_unless($category->is_active, 404);
 
-        $products = $category->products()->where('is_active', true)->with('images', 'variants')->get();
+        $products = $category->products()
+            ->where('is_active', true)
+            ->availableFirst()
+            ->with('images', 'variants')
+            ->get();
 
-        return view('catalog.category', compact('category', 'products'));
+        $sizes = SizeCatalog::groups($products->pluck('id')->all());
+
+        return view('catalog.category', compact('category', 'products', 'sizes'));
     }
 
     public function product(Product $product)
@@ -49,8 +58,8 @@ class CatalogController extends Controller
         $related = Product::where('is_active', true)
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
+            ->availableFirst()
             ->with('images', 'variants')
-            ->latest()
             ->take(4)
             ->get();
 
@@ -65,6 +74,7 @@ class CatalogController extends Controller
         if ($query !== '') {
             $products = Product::where('is_active', true)
                 ->where(fn ($q) => $q->where('name', 'like', "%{$query}%")->orWhere('code', 'like', "%{$query}%"))
+                ->availableFirst()
                 ->with('images', 'variants')
                 ->get();
         }
@@ -74,22 +84,28 @@ class CatalogController extends Controller
 
     public function bySize(Request $request)
     {
-        $size = trim((string) $request->get('talla', ''));
-
-        $availableSizes = ProductVariant::whereHas('product', fn ($q) => $q->where('is_active', true))
-            ->distinct()
-            ->orderBy('size')
-            ->pluck('size');
+        $selected = trim((string) $request->get('talla', ''));
+        $groups = SizeCatalog::groups();
 
         $products = collect();
-        if ($size !== '') {
-            $products = Product::where('is_active', true)
-                ->whereHas('variants', fn ($q) => $q->whereRaw('LOWER(size) = ?', [mb_strtolower($size)]))
-                ->with('images', 'variants')
-                ->distinct()
-                ->get();
+        if ($selected !== '') {
+            $group = $groups->firstWhere('key', SizeCatalog::key($selected));
+            $raws = $group['raws'] ?? [];
+
+            if ($raws) {
+                $products = Product::where('is_active', true)
+                    ->whereHas('variants', fn ($q) => $q->whereIn('size', $raws)->where('stock', '>', 0))
+                    ->availableFirst()
+                    ->with('images', 'variants')
+                    ->get();
+            }
         }
 
-        return view('catalog.by-size', ['products' => $products, 'selectedSize' => $size, 'availableSizes' => $availableSizes]);
+        return view('catalog.by-size', [
+            'products' => $products,
+            'selectedSize' => $selected,
+            'selectedKey' => $selected !== '' ? SizeCatalog::key($selected) : '',
+            'groups' => $groups,
+        ]);
     }
 }

@@ -53,6 +53,14 @@ class Product extends Model
         return $slug;
     }
 
+    /** Primero las prendas con existencias y, dentro de cada grupo, las más nuevas. */
+    public function scopeAvailableFirst($query)
+    {
+        return $query
+            ->orderByRaw('EXISTS (select 1 from product_variants pv where pv.product_id = products.id and pv.stock > 0) desc')
+            ->latest('products.created_at');
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

@@ -80,9 +80,12 @@
             <h2 class="font-serif text-xl font-bold text-navy-900 shrink-0">¿Cuál es tu talla?</h2>
             <div class="flex flex-wrap gap-2">
                 @foreach($sizes as $size)
-                    <a href="{{ route('catalog.by-size', ['talla' => $size]) }}"
-                       class="min-w-[3rem] text-center px-4 py-2 rounded-xl border border-stone-300 text-sm font-semibold text-navy-900 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-colors">{{ $size }}</a>
+                    <a href="{{ route('catalog.by-size', ['talla' => $size['label']]) }}"
+                       class="min-w-[3rem] text-center px-4 py-2 rounded-xl border border-stone-300 text-sm font-semibold text-navy-900 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-colors">{{ $size['label'] }}</a>
                 @endforeach
+                @if($hasMoreSizes)
+                    <a href="{{ route('catalog.by-size') }}" class="px-4 py-2 rounded-xl text-sm font-semibold text-gold-600 hover:text-navy-900 transition-colors">Ver todas las tallas →</a>
+                @endif
             </div>
         </section>
     @endif

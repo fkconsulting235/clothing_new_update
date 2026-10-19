@@ -66,7 +66,7 @@
                     <div class="rounded-2xl border {{ $variant->available_stock > 0 ? 'border-stone-200 bg-white' : 'border-stone-200 bg-stone-50 opacity-70' }} p-4">
                         <div class="flex items-center justify-between gap-3 mb-3">
                             <div class="flex items-center gap-2.5">
-                                <span class="inline-flex items-center justify-center min-w-[2.5rem] h-9 px-3 rounded-lg bg-navy-900 text-white text-sm font-bold">{{ $variant->size }}</span>
+                                <span class="inline-flex items-center justify-center min-w-[2.5rem] h-9 px-3 rounded-lg bg-navy-900 text-white text-sm font-bold">{{ \App\Support\SizeCatalog::label($variant->size) }}</span>
                                 <div>
                                     <p class="text-sm font-semibold text-navy-900 leading-tight">{{ $variant->color }}</p>
                                     <p class="text-xs {{ $variant->available_stock > 0 && $variant->available_stock <= 2 ? 'text-amber-700 font-medium' : 'text-stone-400' }}">
